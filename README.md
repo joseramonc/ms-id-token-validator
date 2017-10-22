@@ -37,6 +37,14 @@ end
 
 ```
 
+By default, the public keys fetched from Microsoft are cached in one hour. Microsoft [state that](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-v2-tokens) their public key should be updated within 24 hours, so our default value is more than enough.
+
+To change the cached expiry, for example, 6 hours, we can pass the value at the time creating the validator.
+
+```ruby
+validator = MsIdToken::Validator.new({expiry: 6 * 3600})
+```
+
 ## References
 
 [Certificate credentials for application authentication](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-certificate-credentials)
