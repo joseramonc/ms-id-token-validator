@@ -9,9 +9,9 @@ Gem::Specification.new do |spec|
   spec.authors       = ["QQ"]
   spec.email         = ["me@quang.be"]
 
-  spec.summary       = %q{Validate the id token from Microsoft oauth2 service}
-  spec.description   = %q{}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.summary       = %q{Validate the Microsoft Oauth2 ID token}
+  spec.description   = %q{Validate the id token from Microsoft oauth2 service}
+  spec.homepage      = "https://github.com/quangquach/ms-id-token-validator"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
@@ -37,4 +37,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency('pry', '~> 0')
   spec.add_development_dependency('pry-doc', '~> 0')
+  spec.add_development_dependency('timecop', '~> 0')
 end
