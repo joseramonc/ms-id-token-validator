@@ -18,7 +18,6 @@ module MsIdToken
     CACHED_CERTS_EXPIRY = 3600
     TOKEN_TYPE = 'JWT'.freeze
     TOKEN_ALGORITHM = 'RS256'.freeze
-    TOKEN_PUBLIC_KEY_SIGN = [:kid, :x5t].freeze
 
     def initialize(options={})
       @cached_certs_expiry = options.fetch(:expiry, CACHED_CERTS_EXPIRY)
@@ -31,16 +30,16 @@ module MsIdToken
 
       header = JSON.parse(Base64.decode64(encoded_header), symbolize_names: true)
 
-      public_key_sign = get_public_key_sign(header)
+      public_keys = JSON::JWK::Set.new(ms_public_keys)
 
-      public_key = get_cert(public_key_sign)
-
-      payload = JSON::JWT.decode(id_token, public_key).symbolize_keys
+      payload = JSON::JWT.decode(id_token, public_keys).symbolize_keys
 
       verify_payload(payload, audience)
 
       payload
     end
+
+    private
 
     def verify_header(header)
       valid_header = header[:typ] == TOKEN_TYPE && header[:alg] == TOKEN_ALGORITHM
@@ -51,7 +50,16 @@ module MsIdToken
     end
 
     def verify_payload(payload, audience)
-      raise BadIdTokenPayloadFormat if payload[:aud].nil? || payload[:exp].nil? || payload[:nbf].nil?
+      if payload[:aud].nil? ||
+         payload[:exp].nil? ||
+         payload[:nbf].nil? ||
+         payload[:sub].nil? ||
+         payload[:iss].nil? ||
+         payload[:iat].nil? ||
+         payload[:tid].nil? ||
+         payload[:iss].match(/https:\/\/login\.microsoftonline\.com\/(.+)\/v2\.0/).nil?
+        raise BadIdTokenPayloadFormat
+      end
 
       raise InvalidAudience if payload[:aud] != audience
 
@@ -60,22 +68,6 @@ module MsIdToken
       raise IdTokenExpired if payload[:exp] < current_time
 
       raise IdTokenNotYetValid if payload[:nbf] > current_time
-    end
-
-    def get_public_key_sign(header)
-      verify_header(header)
-
-      header.select { |key, _| TOKEN_PUBLIC_KEY_SIGN.include?(key) }
-    end
-
-    def get_cert(public_key_sign)
-      public_key_sign_type, public_key_sign_value = public_key_sign.to_a.first
-
-      public_key = ms_public_keys.find do |public_key|
-        public_key[public_key_sign_type.to_sym] == public_key_sign_value
-      end
-
-      JSON::JWK::Set.new(public_key)
     end
 
     def ms_public_keys
@@ -97,11 +89,7 @@ module MsIdToken
 
       raise UnableToFetchMsConfig unless response.is_a?(Net::HTTPSuccess)
 
-      keys = JSON.parse(response.body, symbolize_names: true)[:keys]
-
-      raise BadPublicKeysFormat if keys.nil? || !keys.is_a?(Array)
-
-      keys
+      JSON.parse(response.body, symbolize_names: true)
     end
 
     def fetch_ms_config
