@@ -2,7 +2,7 @@
 
 This library is provided to validate id token from Microsoft Oauth2.
 
-Inspired from the [https://github.com/google/google-id-token](Google ID Token)
+Inspired from the [Google ID Token](https://github.com/google/google-id-token)
 
 ### Disclaimer
 I am entirely not affiliated with Microsoft, the code is provided as-is and no warranty.
@@ -24,13 +24,28 @@ Or install it yourself as:
     $ gem install ms-id-token-validator
 
 ## Usage
+    
+```ruby
+validator = MsIdToken::Validator.new
 
+begin
+  # audience is possibly the Application Client ID
+  payload = validator.check(id_token, audience)
+rescue MsIdToken::IdTokenExpired => ex
+  puts 'Id token is expired'
+end
 
+```
 
 ## References
 
-[https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-certificate-credentials]
-[https://docs.microsoft.com/en-us/outlook/add-ins/validate-an-identity-token]
+[Certificate credentials for application authentication](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-certificate-credentials)
+
+[Validate an Exchange identity token](https://docs.microsoft.com/en-us/outlook/add-ins/validate-an-identity-token)
+
+[Azure Active Directory v2.0 tokens reference](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-v2-tokens)
+
+[Azure AD token reference](https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-token-and-claims)
 
 ## Development
 
