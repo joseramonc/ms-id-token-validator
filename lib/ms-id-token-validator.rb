@@ -57,7 +57,7 @@ module MsIdToken
          payload[:iss].nil? ||
          payload[:iat].nil? ||
          payload[:tid].nil? ||
-         payload[:iss].match(/https:\/\/login\.microsoftonline\.com\/(.+)\/v2\.0/).nil?
+         payload[:iss].match(/https:\/\/sts\.windows\.net\/(.+)\//).nil?
         raise BadIdTokenPayloadFormat
       end
 
